@@ -16,8 +16,20 @@ app.get('/', (req, res) => {
 
 const api = express.Router();
 
-api.get('/hello', (req, res) => {
-  res.status(200).send({ message: 'hello world' });
+api.get('/sse-test', (req, res) => {
+  console.log('Client connected');
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  const intervalId = setInterval(() => {
+    res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
+  }, 1000);
+
+  req.on('close', () => {
+    console.log('Client closed the connection');
+    clearInterval(intervalId);
+    res.end();
+  });
 });
 
 // Version the api
